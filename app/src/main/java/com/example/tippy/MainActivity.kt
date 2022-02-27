@@ -3,6 +3,8 @@ package com.example.tippy
 import android.icu.util.CurrencyAmount
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
 import android.widget.SeekBar
@@ -26,14 +28,14 @@ class MainActivity : AppCompatActivity() {
         seekBarTip = findViewById(R.id.seekBarTip)
         tvTipPercentLabel = findViewById(R.id.tvTipPercentLabel)
         tvTipAmount = findViewById(R.id.tvTipAmount)
-        tvTotalAmount = findViewById(R.id.tvTotalLabel)
+        tvTotalAmount = findViewById(R.id.tvTotalAmount)
 
         seekBarTip.progress = INIT_TIP_PERCENT
         tvTipPercentLabel.text = "$INIT_TIP_PERCENT%"
 
         seekBarTip.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                Log.i(TAG, "onProgressChanged $progress")
+//                Log.i(TAG, "onProgressChanged $progress")
                 tvTipPercentLabel.text = "$progress%"
             }
 
@@ -42,7 +44,34 @@ class MainActivity : AppCompatActivity() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
+        })
+
+        etBaseAmount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+//                Log.i(TAG, "base amount $s")
+                computeTipAndTotal()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
 
         })
+    }
+
+    private fun computeTipAndTotal() {
+        // get the value of the base and tip percent
+        val baseAmount = etBaseAmount.text.toString().toDouble()
+        val tipPercent = seekBarTip.progress
+
+        // compute the tip and total
+        val tipAmount = baseAmount * tipPercent / 100
+        val totalAmount = baseAmount + tipAmount
+
+        // update UI
+        tvTipAmount.text = tipAmount.toString()
+        tvTotalAmount.text = totalAmount.toString()
     }
 }
